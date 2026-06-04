@@ -6,20 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tasks")
-public class TaskEntity {
-
+@Table(name = "proyects")
+public class ProyectEntity {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
-    @Column(nullable = false)
-    private String title;
+    @Column(nullable = false, length = 255)
+    private String name;
     
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -29,9 +31,15 @@ public class TaskEntity {
     private StatusEntity status;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "plan_id", nullable = false)
-    private PlanEntity plan;
-
-    @Column(name = "task_date")
-    private LocalDate taskDate;
+    @JoinColumn(name = "period_id")
+    private PeriodEntity period;
+    
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    
+    @Column(name = "end_date")
+    private LocalDate endDate;
+    
+    @OneToMany(mappedBy = "proyect", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PlanEntity> planes = new ArrayList<>();
 }
