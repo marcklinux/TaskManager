@@ -4,17 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
-
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseTask {
+public class StatusResponse {
     private int id;
-    private String title;
-    private String description;
-    private StatusResponse status;
-    private LocalDate taskDate;
+    private String name;
 }

@@ -5,16 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseTask {
-    private int id;
-    private String title;
-    private String description;
+public class PlanTasksResponse {
+    private int planId;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private StatusResponse status;
-    private LocalDate taskDate;
+    private List<ResponseTask> tasks;
+    private int totalTasks;
 }
