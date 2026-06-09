@@ -7,6 +7,7 @@ import com.programandologicas.TaskManager.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -22,7 +23,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseTask> crearTarea(@RequestBody RequestTask request) {
+    public ResponseEntity<ResponseTask> crearTarea(@Valid @RequestBody RequestTask request) {
         ResponseTask response = taskService.crearTarea(request);
         return ResponseEntity.ok(response);
     }
