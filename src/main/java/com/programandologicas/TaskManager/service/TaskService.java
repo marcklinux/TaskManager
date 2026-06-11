@@ -30,14 +30,11 @@ public class TaskService {
     @Autowired
     private TaskMapper taskMapper;
 
-    public PlanTasksResponse obtenerTareasPorPlan(int planId) {
-        PlanEntity plan = planRepository.findById(planId)
-                .orElseThrow(() -> new RuntimeException("Plan no encontrado"));
-        
-        List<TaskEntity> tareas = taskRepository.obtenerTareasPorPlan(planId);
-        
-        return taskMapper.toPlanTasksResponse(plan, tareas);
+    public List<ResponseTask> obtenerTareas() {
+        List<TaskEntity> tareas = taskRepository.findAll();
+        return taskMapper.toResponseTaskList(tareas);
     }
+
 
     public ResponseTask crearTarea(RequestTask request) {
         if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {

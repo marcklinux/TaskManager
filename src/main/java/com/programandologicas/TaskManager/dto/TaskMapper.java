@@ -5,10 +5,15 @@ import com.programandologicas.TaskManager.repository.entities.StatusEntity;
 import com.programandologicas.TaskManager.repository.entities.PlanEntity;
 import org.springframework.stereotype.Component;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class TaskMapper {
+
+    public List<ResponseTask> toResponseTaskList(List<TaskEntity> entities) {
+        return entities.stream()
+                .map(this::toResponseTask)
+                .toList();
+    }
 
     public ResponseTask toResponseTask(TaskEntity entity) {
         return ResponseTask.builder()
@@ -16,6 +21,7 @@ public class TaskMapper {
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .status(toStatusResponse(entity.getStatus()))
+                .plan(toPlanResponse(entity.getPlan()))
                 .taskDate(entity.getTaskDate())
                 .build();
     }
@@ -37,14 +43,14 @@ public class TaskMapper {
                 .build();
     }
 
-    public PlanTasksResponse toPlanTasksResponse(PlanEntity plan, List<TaskEntity> tasks) {
-        return PlanTasksResponse.builder()
-                .planId(plan.getId())
+    public ResponsePlan toPlanResponse(PlanEntity plan) {
+        return ResponsePlan.builder()
+                .id(plan.getId())
+                .proyectId(plan.getProyect().getId())
+                .title(plan.getTitle())
+                .description(plan.getDescription())
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
-                .status(toStatusResponse(plan.getStatus()))
-                .tasks(tasks.stream().map(this::toResponseTask).collect(Collectors.toList()))
-                .totalTasks(tasks.size())
                 .build();
     }
 }

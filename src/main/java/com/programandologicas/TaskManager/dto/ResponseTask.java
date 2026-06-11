@@ -16,5 +16,6 @@ public class ResponseTask {
     private String title;
     private String description;
     private StatusResponse status;
+    private ResponsePlan plan;
     private LocalDate taskDate;
 }

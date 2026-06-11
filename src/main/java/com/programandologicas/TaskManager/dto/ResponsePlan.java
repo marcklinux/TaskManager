@@ -14,6 +14,8 @@ public class ResponsePlan {
     private int id;
     private int proyectId;
     private StatusResponse status;
+    private String title;
+    private String description;
     private LocalDate startDate;
     private LocalDate endDate;
 }

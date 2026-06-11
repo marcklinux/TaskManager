@@ -30,6 +30,12 @@ public class PlanEntity {
     @JoinColumn(name = "status_id", nullable = false)
     private StatusEntity status;
 
+    @Column(nullable = false)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(name = "start_date")
     private LocalDate startDate;
 

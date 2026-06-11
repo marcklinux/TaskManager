@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -16,11 +18,12 @@ public class TaskController {
     @Autowired
     private TaskService taskService;
 
-    @GetMapping("/plan/{planId}")
-    public ResponseEntity<PlanTasksResponse> obtenerTareasPorPlan(@PathVariable int planId) {
-        PlanTasksResponse response = taskService.obtenerTareasPorPlan(planId);
+    @GetMapping
+    public ResponseEntity<List<ResponseTask>> obtenerTareas() {
+        List<ResponseTask> response = taskService.obtenerTareas();
         return ResponseEntity.ok(response);
     }
+
 
     @PostMapping
     public ResponseEntity<ResponseTask> crearTarea(@Valid @RequestBody RequestTask request) {

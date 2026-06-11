@@ -77,6 +77,8 @@ public class PlanService {
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
 
         planEntity.setStatus(status);
+        planEntity.setTitle(request.getTitle());
+        planEntity.setDescription(request.getDescription());
         planEntity.setStartDate(request.getStartDate());
         planEntity.setEndDate(request.getEndDate());
 
