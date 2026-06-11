@@ -4,18 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDate;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ResponseProyect {
-    private int id;
+public class RequestPeriod {
+    @NotBlank(message = "El nombre del período es requerido")
     private String name;
     private String description;
-    private StatusResponse status;
-    private ResponsePeriod period;
-    private LocalDate startDate;
-    private LocalDate endDate;
 }

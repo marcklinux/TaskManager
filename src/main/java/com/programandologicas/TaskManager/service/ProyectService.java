@@ -5,8 +5,10 @@ import com.programandologicas.TaskManager.dto.ResponseProyect;
 import com.programandologicas.TaskManager.dto.ProyectMapper;
 import com.programandologicas.TaskManager.repository.ProyectRepository;
 import com.programandologicas.TaskManager.repository.EstatusRepository;
+import com.programandologicas.TaskManager.repository.PeriodRepository;
 import com.programandologicas.TaskManager.repository.entities.ProyectEntity;
 import com.programandologicas.TaskManager.repository.entities.StatusEntity;
+import com.programandologicas.TaskManager.repository.entities.PeriodEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,6 +24,9 @@ public class ProyectService {
     private EstatusRepository estatusRepository;
 
     @Autowired
+    private PeriodRepository periodRepository;
+
+    @Autowired
     private ProyectMapper proyectMapper;
 
     public ResponseProyect crearProyecto(RequestProyect request) {
@@ -32,7 +37,13 @@ public class ProyectService {
         StatusEntity status = estatusRepository.findById(request.getStatusId())
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
 
-        ProyectEntity proyectEntity = proyectMapper.toProyectEntity(request, status);
+        PeriodEntity period = null;
+        if (request.getPeriodId() != null) {
+            period = periodRepository.findById(request.getPeriodId())
+                    .orElseThrow(() -> new RuntimeException("Período no encontrado"));
+        }
+
+        ProyectEntity proyectEntity = proyectMapper.toProyectEntity(request, status, period);
         ProyectEntity proyectGuardado = proyectRepository.save(proyectEntity);
 
         return proyectMapper.toResponseProyect(proyectGuardado);
@@ -57,9 +68,16 @@ public class ProyectService {
         StatusEntity status = estatusRepository.findById(request.getStatusId())
                 .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
 
+        PeriodEntity period = null;
+        if (request.getPeriodId() != null) {
+            period = periodRepository.findById(request.getPeriodId())
+                    .orElseThrow(() -> new RuntimeException("Período no encontrado"));
+        }
+
         proyectEntity.setName(request.getName());
         proyectEntity.setDescription(request.getDescription());
         proyectEntity.setStatus(status);
+        proyectEntity.setPeriod(period);
         proyectEntity.setStartDate(request.getStartDate());
         proyectEntity.setEndDate(request.getEndDate());
 
