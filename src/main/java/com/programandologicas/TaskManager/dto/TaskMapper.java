@@ -1,9 +1,6 @@
 package com.programandologicas.TaskManager.dto;
 
-import com.programandologicas.TaskManager.repository.entities.ProyectEntity;
-import com.programandologicas.TaskManager.repository.entities.TaskEntity;
-import com.programandologicas.TaskManager.repository.entities.StatusEntity;
-import com.programandologicas.TaskManager.repository.entities.PlanEntity;
+import com.programandologicas.TaskManager.repository.entities.*;
 import org.springframework.stereotype.Component;
 import java.util.List;
 
@@ -48,6 +45,7 @@ public class TaskMapper {
         return ResponsePlan.builder()
                 .id(plan.getId())
                 .proyect(toResponseProyect(plan.getProyect()))
+                .status(toStatusResponse(plan.getStatus()))
                 .title(plan.getTitle())
                 .description(plan.getDescription())
                 .startDate(plan.getStartDate())
@@ -59,6 +57,19 @@ public class TaskMapper {
         return ResponseProyect.builder()
                 .id(proyect.getId())
                 .name(proyect.getName())
+                .description(proyect.getDescription())
+                .status(toStatusResponse(proyect.getStatus()))
+                .period(toResponsePeriod(proyect.getPeriod()))
+                .startDate(proyect.getStartDate())
+                .endDate(proyect.getEndDate())
+                .build();
+    }
+
+    private ResponsePeriod toResponsePeriod(PeriodEntity period) {
+        return ResponsePeriod.builder()
+                .id(period.getId())
+                .name(period.getName())
+                .description(period.getDescription())
                 .build();
     }
 }
