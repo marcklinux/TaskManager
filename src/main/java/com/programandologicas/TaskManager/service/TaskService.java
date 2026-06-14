@@ -52,5 +52,30 @@ public class TaskService {
 
         return taskMapper.toResponseTask(taskGuardada);
     }
-}
 
+    public ResponseTask actualizarTarea(int id, RequestTask request) {
+        TaskEntity tareaExistente = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+
+        if (request.getTitle() != null && !request.getTitle().trim().isEmpty()) {
+            tareaExistente.setTitle(request.getTitle());
+        }
+
+        if (request.getDescription() != null) {
+            tareaExistente.setDescription(request.getDescription());
+        }
+
+        if (request.getTaskDate() != null) {
+            tareaExistente.setTaskDate(request.getTaskDate());
+        }
+
+        if (request.getStatusId() != 0) {
+            StatusEntity status = estatusRepository.findById(request.getStatusId())
+                    .orElseThrow(() -> new RuntimeException("Estado no encontrado"));
+            tareaExistente.setStatus(status);
+        }
+
+        TaskEntity tareaActualizada = taskRepository.save(tareaExistente);
+        return taskMapper.toResponseTask(tareaActualizada);
+    }
+}

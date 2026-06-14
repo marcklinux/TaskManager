@@ -1,8 +1,6 @@
 package com.programandologicas.TaskManager.controllers;
 
-import com.programandologicas.TaskManager.dto.PlanTasksResponse;
-import com.programandologicas.TaskManager.dto.RequestTask;
-import com.programandologicas.TaskManager.dto.ResponseTask;
+import com.programandologicas.TaskManager.dto.*;
 import com.programandologicas.TaskManager.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +28,12 @@ public class TaskController {
         ResponseTask response = taskService.crearTarea(request);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseTask> actualizarTarea(@PathVariable int id, @Valid @RequestBody RequestTask request) {
+        ResponseTask response = taskService.actualizarTarea(id, request);
+        return ResponseEntity.ok(response);
+    }
+
 }
 

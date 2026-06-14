@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Builder
 public class ResponsePlan {
     private int id;
-    private int proyectId;
+    private ResponseProyect proyect;
     private StatusResponse status;
     private String title;
     private String description;

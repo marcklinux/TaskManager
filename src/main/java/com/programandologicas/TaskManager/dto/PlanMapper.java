@@ -1,6 +1,7 @@
 package com.programandologicas.TaskManager.dto;
 
 import com.programandologicas.TaskManager.repository.entities.PlanEntity;
+import com.programandologicas.TaskManager.repository.entities.ProyectEntity;
 import com.programandologicas.TaskManager.repository.entities.StatusEntity;
 import org.springframework.stereotype.Component;
 
@@ -10,12 +11,19 @@ public class PlanMapper {
     public ResponsePlan toResponsePlan(PlanEntity entity) {
         return ResponsePlan.builder()
                 .id(entity.getId())
-                .proyectId(entity.getProyect().getId())
+                .proyect(toResponseProyect(entity.getProyect()))
                 .status(toStatusResponse(entity.getStatus()))
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .startDate(entity.getStartDate())
                 .endDate(entity.getEndDate())
+                .build();
+    }
+
+    private ResponseProyect toResponseProyect(ProyectEntity proyect) {
+        return ResponseProyect.builder()
+                .id(proyect.getId())
+                .name(proyect.getName())
                 .build();
     }
 

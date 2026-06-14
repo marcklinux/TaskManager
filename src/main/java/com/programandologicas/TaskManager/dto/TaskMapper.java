@@ -1,5 +1,6 @@
 package com.programandologicas.TaskManager.dto;
 
+import com.programandologicas.TaskManager.repository.entities.ProyectEntity;
 import com.programandologicas.TaskManager.repository.entities.TaskEntity;
 import com.programandologicas.TaskManager.repository.entities.StatusEntity;
 import com.programandologicas.TaskManager.repository.entities.PlanEntity;
@@ -46,11 +47,18 @@ public class TaskMapper {
     public ResponsePlan toPlanResponse(PlanEntity plan) {
         return ResponsePlan.builder()
                 .id(plan.getId())
-                .proyectId(plan.getProyect().getId())
+                .proyect(toResponseProyect(plan.getProyect()))
                 .title(plan.getTitle())
                 .description(plan.getDescription())
                 .startDate(plan.getStartDate())
                 .endDate(plan.getEndDate())
+                .build();
+    }
+
+    private ResponseProyect toResponseProyect(ProyectEntity proyect) {
+        return ResponseProyect.builder()
+                .id(proyect.getId())
+                .name(proyect.getName())
                 .build();
     }
 }
