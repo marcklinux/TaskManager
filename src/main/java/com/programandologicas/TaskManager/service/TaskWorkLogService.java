@@ -12,16 +12,22 @@ import com.programandologicas.TaskManager.repository.entities.TaskWorkLogEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskWorkLogService {
 
     private static final LocalDate BASE_SEMANA_1 = LocalDate.of(2026, 6, 15);
+    private static final DateTimeFormatter PDF_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final int PDF_MAX_CHARS_PER_LINE = 90;
 
     @Autowired
     private TaskWorkLogRepository taskWorkLogRepository;
@@ -101,6 +107,158 @@ public class TaskWorkLogService {
         return obtenerReporteSemanal(fechaInicio, fechaFin);
     }
 
+    public byte[] generarReporteSemanalCsv(LocalDate fechaInicio, LocalDate fechaFin) {
+        WeeklyTaskReportResponse reporte = obtenerReporteSemanal(fechaInicio, fechaFin);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("fecha_inicio,fecha_fin,total_registros\n");
+        sb.append(reporte.getFechaInicio()).append(",")
+                .append(reporte.getFechaFin()).append(",")
+                .append(reporte.getTotalRegistros()).append("\n\n");
+
+        sb.append("task_id,tarea,plan_id,plan,total_registros,fechas_trabajo\n");
+        for (WeeklyTaskReportItem item : reporte.getTareas()) {
+            String fechas = item.getFechasTrabajo().stream()
+                    .map(LocalDate::toString)
+                    .collect(Collectors.joining("|"));
+
+            sb.append(item.getTaskId()).append(",")
+                    .append(escapeCsv(item.getTaskTitle())).append(",")
+                    .append(item.getPlanId()).append(",")
+                    .append(escapeCsv(item.getPlanTitle())).append(",")
+                    .append(item.getTotalRegistros()).append(",")
+                    .append(escapeCsv(fechas)).append("\n");
+        }
+
+        return sb.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    public byte[] generarReporteSemanalPdf(LocalDate fechaInicio, LocalDate fechaFin) {
+        WeeklyTaskReportResponse reporte = obtenerReporteSemanal(fechaInicio, fechaFin);
+
+        List<String> lines = new java.util.ArrayList<>();
+        lines.add("Reporte semanal de trabajo");
+        lines.add("Rango: " + formatDate(reporte.getFechaInicio()) + " a " + formatDate(reporte.getFechaFin()));
+        lines.add("Total registros: " + reporte.getTotalRegistros());
+        lines.add("");
+
+        for (WeeklyTaskReportItem item : reporte.getTareas()) {
+            String fechas = item.getFechasTrabajo().stream()
+                    .map(this::formatDate)
+                    .collect(Collectors.joining(", "));
+            lines.add("Tarea #" + item.getTaskId() + ": " + item.getTaskTitle());
+            lines.add("Plan #" + item.getPlanId() + ": " + item.getPlanTitle());
+            lines.add("Registros: " + item.getTotalRegistros());
+            lines.add("Fechas trabajadas: " + fechas);
+            lines.add("");
+        }
+
+        return buildSimplePdf(lines);
+    }
+
+    private String escapeCsv(String value) {
+        if (value == null) {
+            return "";
+        }
+        String escaped = value.replace("\"", "\"\"");
+        return "\"" + escaped + "\"";
+    }
+
+    private String formatDate(LocalDate date) {
+        return date == null ? "" : date.format(PDF_DATE_FORMAT);
+    }
+
+    private byte[] buildSimplePdf(List<String> lines) {
+        try {
+            List<String> normalizedLines = lines.stream()
+                    .flatMap(line -> wrapPlainText(line).stream())
+                    .toList();
+
+            StringBuilder content = new StringBuilder();
+            content.append("BT\n/F1 12 Tf\n14 TL\n50 760 Td\n");
+
+            boolean first = true;
+            for (String line : normalizedLines) {
+                if (!first) {
+                    content.append("T*\n");
+                }
+                content.append("(").append(escapePdfText(line)).append(") Tj\n");
+                first = false;
+            }
+            content.append("ET");
+
+            byte[] contentBytes = content.toString().getBytes(StandardCharsets.US_ASCII);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            List<Integer> offsets = new java.util.ArrayList<>();
+
+            writeAscii(out, "%PDF-1.4\n");
+
+            offsets.add(out.size());
+            writeAscii(out, "1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+
+            offsets.add(out.size());
+            writeAscii(out, "2 0 obj\n<< /Type /Pages /Count 1 /Kids [3 0 R] >>\nendobj\n");
+
+            offsets.add(out.size());
+            writeAscii(out, "3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n");
+
+            offsets.add(out.size());
+            writeAscii(out, "4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n");
+
+            offsets.add(out.size());
+            writeAscii(out, "5 0 obj\n<< /Length " + contentBytes.length + " >>\nstream\n");
+            out.write(contentBytes);
+            writeAscii(out, "\nendstream\nendobj\n");
+
+            int xrefOffset = out.size();
+            writeAscii(out, "xref\n0 6\n");
+            writeAscii(out, "0000000000 65535 f \n");
+            for (Integer offset : offsets) {
+                writeAscii(out, String.format(java.util.Locale.ROOT, "%010d 00000 n \n", offset));
+            }
+            writeAscii(out, "trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n" + xrefOffset + "\n%%EOF");
+            return out.toByteArray();
+        } catch (Exception ex) {
+            throw new RuntimeException("No se pudo generar el PDF del reporte semanal", ex);
+        }
+    }
+
+    private List<String> wrapPlainText(String text) {
+        if (text == null || text.isEmpty()) {
+            return java.util.List.of("");
+        }
+
+        List<String> lines = new java.util.ArrayList<>();
+        String[] words = text.split("\\s+");
+        StringBuilder current = new StringBuilder();
+
+        for (String word : words) {
+            String candidate = current.isEmpty() ? word : current + " " + word;
+            if (candidate.length() > PDF_MAX_CHARS_PER_LINE && !current.isEmpty()) {
+                lines.add(current.toString());
+                current = new StringBuilder(word);
+            } else {
+                current = new StringBuilder(candidate);
+            }
+        }
+
+        if (!current.isEmpty()) {
+            lines.add(current.toString());
+        }
+        return lines;
+    }
+
+    private String escapePdfText(String value) {
+        return value
+                .replace("\\", "\\\\")
+                .replace("(", "\\(")
+                .replace(")", "\\)");
+    }
+
+    private void writeAscii(ByteArrayOutputStream out, String value) throws java.io.IOException {
+        out.write(value.getBytes(StandardCharsets.US_ASCII));
+    }
+
     private void validarRango(LocalDate fechaInicio, LocalDate fechaFin) {
         if (fechaInicio == null || fechaFin == null) {
             throw new IllegalArgumentException("fechaInicio y fechaFin son requeridas");
@@ -134,4 +292,3 @@ public class TaskWorkLogService {
                 .build();
     }
 }
-

@@ -7,6 +7,8 @@ import com.programandologicas.TaskManager.service.TaskWorkLogService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,5 +45,30 @@ public class TaskWorkLogController {
     public ResponseEntity<WeeklyTaskReportResponse> obtenerReportePorNumeroSemana(@PathVariable int numeroSemana) {
         return ResponseEntity.ok(taskWorkLogService.obtenerReportePorNumeroSemana(numeroSemana));
     }
-}
 
+    @GetMapping("/reporte-semanal/csv")
+    public ResponseEntity<byte[]> descargarReporteSemanalCsv(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        byte[] contenido = taskWorkLogService.generarReporteSemanalCsv(fechaInicio, fechaFin);
+        String fileName = "reporte-semanal-" + fechaInicio + "-" + fechaFin + ".csv";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(contenido);
+    }
+
+    @GetMapping("/reporte-semanal/pdf")
+    public ResponseEntity<byte[]> descargarReporteSemanalPdf(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        byte[] contenido = taskWorkLogService.generarReporteSemanalPdf(fechaInicio, fechaFin);
+        String fileName = "reporte-semanal-" + fechaInicio + "-" + fechaFin + ".pdf";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(contenido);
+    }
+}
