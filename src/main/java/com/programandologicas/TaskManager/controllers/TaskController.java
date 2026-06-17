@@ -3,10 +3,12 @@ package com.programandologicas.TaskManager.controllers;
 import com.programandologicas.TaskManager.dto.*;
 import com.programandologicas.TaskManager.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -19,6 +21,14 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<ResponseTask>> obtenerTareas() {
         List<ResponseTask> response = taskService.obtenerTareas();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/rango-fecha")
+    public ResponseEntity<List<ResponseTask>> obtenerTareasPorRangoFecha(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+        List<ResponseTask> response = taskService.obtenerTareasPorRangoFecha(fechaInicio, fechaFin);
         return ResponseEntity.ok(response);
     }
 
@@ -36,4 +46,3 @@ public class TaskController {
     }
 
 }
-

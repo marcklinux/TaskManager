@@ -1,6 +1,5 @@
 package com.programandologicas.TaskManager.service;
 
-import com.programandologicas.TaskManager.dto.PlanTasksResponse;
 import com.programandologicas.TaskManager.dto.RequestTask;
 import com.programandologicas.TaskManager.dto.ResponseTask;
 import com.programandologicas.TaskManager.dto.TaskMapper;
@@ -32,6 +31,18 @@ public class TaskService {
 
     public List<ResponseTask> obtenerTareas() {
         List<TaskEntity> tareas = taskRepository.findAll();
+        return taskMapper.toResponseTaskList(tareas);
+    }
+
+    public List<ResponseTask> obtenerTareasPorRangoFecha(LocalDate fechaInicio, LocalDate fechaFin) {
+        if (fechaInicio == null || fechaFin == null) {
+            throw new IllegalArgumentException("fechaInicio y fechaFin son requeridas");
+        }
+        if (fechaInicio.isAfter(fechaFin)) {
+            throw new IllegalArgumentException("fechaInicio no puede ser mayor que fechaFin");
+        }
+
+        List<TaskEntity> tareas = taskRepository.obtenerTareasPorRangoFecha(fechaInicio, fechaFin);
         return taskMapper.toResponseTaskList(tareas);
     }
 

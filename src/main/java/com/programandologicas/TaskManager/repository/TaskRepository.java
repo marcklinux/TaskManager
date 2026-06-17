@@ -21,6 +21,6 @@ public interface TaskRepository extends JpaRepository<TaskEntity,Integer> {
     @Query("SELECT t FROM TaskEntity t WHERE t.taskDate = :fecha")
     List<TaskEntity> obtenerTareasPorFecha(@Param("fecha") LocalDate fecha);
     
-    @Query("SELECT t FROM TaskEntity t WHERE t.taskDate BETWEEN :fechaInicio AND :fechaFin")
+    @Query("SELECT t FROM TaskEntity t WHERE t.taskDate BETWEEN :fechaInicio AND :fechaFin ORDER BY t.taskDate ASC")
     List<TaskEntity> obtenerTareasPorRangoFecha(@Param("fechaInicio") LocalDate fechaInicio, @Param("fechaFin") LocalDate fechaFin);
 }
