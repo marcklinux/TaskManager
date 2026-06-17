@@ -2,6 +2,7 @@ package com.programandologicas.TaskManager.controllers;
 
 import com.programandologicas.TaskManager.dto.RequestTaskWorkLog;
 import com.programandologicas.TaskManager.dto.ResponseTaskWorkLog;
+import com.programandologicas.TaskManager.dto.UpdateTaskWorkLogRequest;
 import com.programandologicas.TaskManager.dto.WeeklyTaskReportResponse;
 import com.programandologicas.TaskManager.service.TaskWorkLogService;
 import jakarta.validation.Valid;
@@ -25,6 +26,13 @@ public class TaskWorkLogController {
     @PostMapping
     public ResponseEntity<ResponseTaskWorkLog> registrarTrabajo(@Valid @RequestBody RequestTaskWorkLog request) {
         return ResponseEntity.ok(taskWorkLogService.registrarTrabajo(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseTaskWorkLog> actualizarRegistroTrabajo(
+            @PathVariable int id,
+            @RequestBody UpdateTaskWorkLogRequest request) {
+        return ResponseEntity.ok(taskWorkLogService.actualizarRegistroTrabajo(id, request));
     }
 
     @GetMapping

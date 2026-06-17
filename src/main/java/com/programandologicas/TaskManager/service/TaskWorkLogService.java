@@ -2,6 +2,7 @@ package com.programandologicas.TaskManager.service;
 
 import com.programandologicas.TaskManager.dto.RequestTaskWorkLog;
 import com.programandologicas.TaskManager.dto.ResponseTaskWorkLog;
+import com.programandologicas.TaskManager.dto.UpdateTaskWorkLogRequest;
 import com.programandologicas.TaskManager.dto.WeeklyTaskReportItem;
 import com.programandologicas.TaskManager.dto.WeeklyTaskReportResponse;
 import com.programandologicas.TaskManager.repository.TaskRepository;
@@ -53,6 +54,37 @@ public class TaskWorkLogService {
 
         TaskWorkLogEntity guardado = taskWorkLogRepository.save(entity);
         return toResponse(guardado);
+    }
+
+    public ResponseTaskWorkLog actualizarRegistroTrabajo(int id, UpdateTaskWorkLogRequest request) {
+        TaskWorkLogEntity existente = taskWorkLogRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Registro de trabajo no encontrado"));
+
+        if (request.getTaskId() == null && request.getWorkDate() == null && request.getNotes() == null) {
+            throw new IllegalArgumentException("Debe enviar al menos un campo para actualizar");
+        }
+
+        TaskEntity tareaActualizada = existente.getTask();
+        if (request.getTaskId() != null) {
+            tareaActualizada = taskRepository.findById(request.getTaskId())
+                    .orElseThrow(() -> new RuntimeException("Tarea no encontrada"));
+            existente.setTask(tareaActualizada);
+        }
+
+        if (request.getWorkDate() != null) {
+            existente.setWorkDate(request.getWorkDate());
+        }
+
+        if (request.getTaskId() != null || request.getWorkDate() != null) {
+            validarFechaDentroDelPlan(existente.getTask(), existente.getWorkDate());
+        }
+
+        if (request.getNotes() != null) {
+            existente.setNotes(request.getNotes());
+        }
+
+        TaskWorkLogEntity actualizado = taskWorkLogRepository.save(existente);
+        return toResponse(actualizado);
     }
 
     public List<ResponseTaskWorkLog> obtenerRegistrosPorRangoFecha(LocalDate fechaInicio, LocalDate fechaFin) {
