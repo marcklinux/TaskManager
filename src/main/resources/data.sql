@@ -53,3 +53,26 @@ INSERT INTO tasks (id, title, description, status_id, plan_id, task_date) VALUES
 (22, 'Implementar Validaciones', 'Agregar validaciones de entrada', 1, 7, '2026-07-29'),
 (23, 'Implementar Manejo de Errores', 'Crear middleware de manejo global de errores', 1, 7, '2026-07-31'),
 (24, 'Testing Unitario', 'Escribir tests unitarios para servicios', 1, 7, '2026-08-02');
+
+-- Insert Task Work Logs (registro real de dias trabajados por tarea)
+INSERT INTO task_work_logs (id, task_id, work_date, notes) VALUES
+(1, 1, '2026-06-15', 'Sesion de levantamiento inicial con stakeholders'),
+(2, 1, '2026-06-17', 'Refinamiento de requisitos funcionales'),
+(3, 1, '2026-06-19', 'Cierre de requerimientos y pendientes'),
+(4, 2, '2026-06-17', 'Diseno inicial del modelo de datos'),
+(5, 2, '2026-06-18', 'Ajustes en relaciones y cardinalidades'),
+(6, 3, '2026-06-20', 'Version inicial del documento funcional'),
+(7, 4, '2026-06-22', 'Configuracion de proyecto y dependencias'),
+(8, 4, '2026-06-24', 'Ajustes de entorno local y perfiles'),
+(9, 6, '2026-06-24', 'Repositorio base para tareas y planes'),
+(10, 7, '2026-06-26', 'Primera version de logica de negocio'),
+(11, 9, '2026-06-29', 'Estructura base del proyecto frontend'),
+(12, 10, '2026-07-01', 'Diseno de componentes principales'),
+(13, 12, '2026-07-06', 'Wireframes de vistas del portal'),
+(14, 13, '2026-07-08', 'Mockups de alta fidelidad'),
+(15, 15, '2026-07-13', 'Configuracion de framework frontend'),
+(16, 16, '2026-07-15', 'Integracion inicial con endpoints'),
+(17, 18, '2026-07-20', 'Definicion de contratos CRUD'),
+(18, 19, '2026-07-22', 'Reglas de autenticacion definidas'),
+(19, 21, '2026-07-27', 'Implementacion inicial de JWT'),
+(20, 24, '2026-08-02', 'Cobertura base de pruebas unitarias');
