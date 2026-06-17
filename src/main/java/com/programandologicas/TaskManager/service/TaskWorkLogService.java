@@ -137,21 +137,41 @@ public class TaskWorkLogService {
         WeeklyTaskReportResponse reporte = obtenerReporteSemanal(fechaInicio, fechaFin);
 
         List<String> lines = new java.util.ArrayList<>();
-        lines.add("Reporte semanal de trabajo");
-        lines.add("Rango: " + formatDate(reporte.getFechaInicio()) + " a " + formatDate(reporte.getFechaFin()));
-        lines.add("Total registros: " + reporte.getTotalRegistros());
         lines.add("");
+        lines.add("================================================================================");
+        lines.add("                        REPORTE SEMANAL DE TRABAJO");
+        lines.add("================================================================================");
+        lines.add("");
+        lines.add("Periodo: " + formatDate(reporte.getFechaInicio()) + " a " + formatDate(reporte.getFechaFin()));
+        lines.add("Total de registros en la semana: " + reporte.getTotalRegistros());
+        lines.add("");
+        lines.add("================================================================================");
+        lines.add("");
+        lines.add("DETALLE DE TAREAS TRABAJADAS:");
+        lines.add("");
+        lines.add("┌─────────┬──────────────────────────────┬──────────┬─────────────────────────┐");
+        lines.add("│ Task ID │ Nombre de Tarea              │ Registros│ Fechas Trabajadas       │");
+        lines.add("├─────────┼──────────────────────────────┼──────────┼─────────────────────────┤");
 
         for (WeeklyTaskReportItem item : reporte.getTareas()) {
             String fechas = item.getFechasTrabajo().stream()
                     .map(this::formatDate)
                     .collect(Collectors.joining(", "));
-            lines.add("Tarea #" + item.getTaskId() + ": " + item.getTaskTitle());
-            lines.add("Plan #" + item.getPlanId() + ": " + item.getPlanTitle());
-            lines.add("Registros: " + item.getTotalRegistros());
-            lines.add("Fechas trabajadas: " + fechas);
+
+            String taskName = padRight(item.getTaskTitle(), 28);
+            String records = padRight(String.valueOf(item.getTotalRegistros()), 8);
+            String taskDates = padRight(fechas.substring(0, Math.min(23, fechas.length())), 23);
+            String taskId = padRight(String.valueOf(item.getTaskId()), 7);
+
+            lines.add("│ " + taskId + " │ " + taskName + " │ " + records + " │ " + taskDates + " │");
+            lines.add("│         │ Plan: " + padRight(item.getPlanTitle().substring(0, Math.min(22, item.getPlanTitle().length())), 22) + " │          │                         │");
             lines.add("");
         }
+        lines.add("└─────────┴──────────────────────────────┴──────────┴─────────────────────────┘");
+        lines.add("");
+        lines.add("================================================================================");
+        lines.add("Generado: " + LocalDate.now().format(PDF_DATE_FORMAT));
+        lines.add("================================================================================");
 
         return buildSimplePdf(lines);
     }
@@ -166,6 +186,13 @@ public class TaskWorkLogService {
 
     private String formatDate(LocalDate date) {
         return date == null ? "" : date.format(PDF_DATE_FORMAT);
+    }
+
+    private String padRight(String text, int length) {
+        if (text == null) {
+            text = "";
+        }
+        return text.length() >= length ? text.substring(0, length) : text + " ".repeat(length - text.length());
     }
 
     private byte[] buildSimplePdf(List<String> lines) {
